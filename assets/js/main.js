@@ -538,6 +538,7 @@
     toast: toast,
     observer: observer,
     magnetique: initMagnetique,
+    compteurs: initCompteurs,
     mouvementReduit: function () { return mqReduit.matches; },
   };
 })();

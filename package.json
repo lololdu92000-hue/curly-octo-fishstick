@@ -1,0 +1,19 @@
+{
+  "name": "maison-aurevia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site e-commerce Maison Aurévia — achat & revente d'articles de luxe, Paris",
+  "scripts": {
+    "dev": "npx netlify-cli@latest dev",
+    "apercu": "serve -l 8888 ."
+  },
+  "dependencies": {
+    "stripe": "^17.7.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.6"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

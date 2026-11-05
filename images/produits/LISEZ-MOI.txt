@@ -1,0 +1,7 @@
+Déposez ici les photos de vos pièces.
+
+Nom du fichier = identifiant du produit (champ "id" dans data/products.json) + .jpg
+Exemple : dior-b30-noir.jpg
+
+Format conseillé : JPG, 1200 x 1500 px (portrait 4:5), moins de 300 Ko.
+Tant qu'une photo est absente, le site affiche un visuel « Photo à venir ».

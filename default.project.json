@@ -1,0 +1,18 @@
+{
+  "name": "curly-octo-fishstick",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "RealisticGraphics": {
+        "$path": "src/ServerScriptService/RealisticGraphics.server.lua"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "RealisticCamera": {
+          "$path": "src/StarterPlayerScripts/RealisticCamera.client.lua"
+        }
+      }
+    }
+  }
+}

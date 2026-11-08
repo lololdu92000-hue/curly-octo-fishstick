@@ -8,13 +8,13 @@
 	   Explorer > Lighting > Propriétés > Technology = Future
 	   (c'est ce qui donne les vraies ombres, reflets et lumières dynamiques)
 
-	Changez PRESET ci‑dessous : "Jour", "CoucherDeSoleil" ou "Nuit"
+	Changez PRESET ci‑dessous : "CleanHD", "Jour", "CoucherDeSoleil" ou "Nuit"
 ]]
 
 local Lighting = game:GetService("Lighting")
 local MaterialService = game:GetService("MaterialService")
 
-local PRESET = "Jour"
+local PRESET = "CleanHD" -- "CleanHD", "Jour", "CoucherDeSoleil" ou "Nuit"
 
 -- Petit utilitaire : applique une propriété sans planter si elle n'existe pas
 -- (certaines propriétés récentes ne sont pas dispo partout)
@@ -51,6 +51,29 @@ for _, child in ipairs(Lighting:GetChildren()) do
 end
 
 local PRESETS = {
+	-- Rendu "photo TikTok" : net partout, ciel bleu vif, peau qui brille, pas de brume ni de flou
+	CleanHD = {
+		ClockTime = 13.5,
+		Brightness = 3,
+		ExposureCompensation = 0.1,
+		Ambient = Color3.fromRGB(40, 40, 45),
+		OutdoorAmbient = Color3.fromRGB(135, 140, 150),
+		ColorShift_Top = Color3.fromRGB(255, 247, 235),
+		ColorShift_Bottom = Color3.fromRGB(50, 55, 70),
+		Atmosphere = {
+			Density = 0.22,
+			Offset = 0,
+			Color = Color3.fromRGB(190, 215, 245),
+			Decay = Color3.fromRGB(90, 130, 200),
+			Glare = 0,
+			Haze = 0,
+		},
+		Bloom = { Intensity = 0.4, Size = 24, Threshold = 1.8 },
+		CC = { Brightness = 0.03, Contrast = 0.12, Saturation = 0.2, TintColor = Color3.fromRGB(255, 252, 248) },
+		SunRays = { Intensity = 0.02, Spread = 0.5 },
+		DOF = false, -- pas de flou : tout est net
+		Clouds = { Cover = 0.4, Density = 0.6, Color = Color3.fromRGB(255, 255, 255) },
+	},
 	Jour = {
 		ClockTime = 14.2,
 		Brightness = 3.2,
@@ -119,7 +142,7 @@ local PRESETS = {
 	},
 }
 
-local p = PRESETS[PRESET] or PRESETS.Jour
+local p = PRESETS[PRESET] or PRESETS.CleanHD
 
 ---------------------------------------------------------------------
 -- 1) Moteur de lumière
@@ -194,8 +217,13 @@ for k, v in pairs(p.SunRays) do
 end
 
 local dof = getOrCreate("DepthOfFieldEffect", "RG_DepthOfField", Lighting)
-for k, v in pairs(p.DOF) do
-	dof[k] = v
+if p.DOF then
+	dof.Enabled = true
+	for k, v in pairs(p.DOF) do
+		dof[k] = v
+	end
+else
+	dof.Enabled = false
 end
 
 ---------------------------------------------------------------------

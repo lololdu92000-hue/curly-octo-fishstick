@@ -26,12 +26,19 @@ end
 
 local EFFECT_NAMES = { "RG_Bloom", "RG_ColorCorrection", "RG_SunRays", "RG_DepthOfField" }
 
+local wasEnabled = {} -- se souvient des effets que le serveur avait activés
+
 local function setEnabled(state)
 	enabled = state
 	for _, name in ipairs(EFFECT_NAMES) do
 		local e = getEffect(name)
 		if e then
-			e.Enabled = state
+			if not state then
+				wasEnabled[name] = e.Enabled
+				e.Enabled = false
+			else
+				e.Enabled = wasEnabled[name] ~= false
+			end
 		end
 	end
 	if not state then
@@ -66,11 +73,16 @@ RunService.RenderStepped:Connect(function(dt)
 
 	-- 1) Auto‑focus sur le personnage
 	local dof = getEffect("RG_DepthOfField")
-	if dof and root then
+	if dof and dof.Enabled and root then
 		local dist = (camera.CFrame.Position - root.Position).Magnitude
 		local target = math.clamp(dist, 5, 200)
 		dof.FocusDistance = dof.FocusDistance + (target - dof.FocusDistance) * math.min(1, dt * 6)
 		dof.InFocusRadius = math.max(15, target * 0.9)
+	end
+
+	-- En CleanHD on garde une lumière stable (rendu photo)
+	if Lighting:GetAttribute("RG_Preset") == "CleanHD" then
+		return
 	end
 
 	-- 2) Adaptation de l'œil : plus sombre face au soleil, plus clair dans l'ombre

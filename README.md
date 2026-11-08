@@ -28,7 +28,7 @@ Avec Rojo : `rojo serve` (le fichier `default.project.json` est déjà prêt).
 ## Changer l'ambiance
 En haut de `RealisticGraphics.server.lua` :
 ```lua
-local PRESET = "Jour"   -- "Jour", "CoucherDeSoleil" ou "Nuit"
+local PRESET = "CleanHD"   -- "CleanHD" (net, style TikTok), "Jour", "CoucherDeSoleil" ou "Nuit"
 ```
 
 ## Encore plus réaliste

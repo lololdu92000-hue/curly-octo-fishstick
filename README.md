@@ -1,37 +1,25 @@
-# curly-octo-fishstick — Graphismes Réalistes Roblox 🔥
+# Reel — Comment les Tours Aillaud (Tours Nuages) de Nanterre sont nées
 
-Rend ton jeu Roblox **beaucoup plus réaliste** (lumière, ombres, brume, reflets, flou cinéma)
-tout en gardant le style Roblox (avatars, grille, couleurs).
+Vidéo verticale 1080×1920, 40 s, style motion design TikTok/Reels :
+**`reel/reel_nanterre.mp4`**
 
-## Ce que ça ajoute
-- ☀️ Lumière **Future** + style **Realistic** : vraies ombres douces, reflets, lumière indirecte
-- 🌫️ **Atmosphere** : brume et profondeur à l'horizon (fini le ciel tout plat)
-- ☁️ **Nuages volumétriques** + soleil/étoiles
-- ✨ **Bloom**, **SunRays**, **Color Correction** (contraste + couleurs cinéma)
-- 🎥 **Flou de profondeur** avec mise au point automatique sur ton perso
-- 👁️ **Exposition adaptative** (comme un vrai œil : ébloui face au soleil, s'adapte à l'ombre)
-- 🧱 Matériaux 2022 HD, eau réaliste, herbe animée
-- ⌨️ Touche **G** pour activer/désactiver (PC faibles)
+Toute la vidéo est générée par du code (aucune IA vidéo) :
+- `reel/reel.html` : les scènes, dessinées et animées sur un canvas
+- `reel/render.js` : capture image par image avec Playwright, puis montage avec ffmpeg
+- `reel/music.py` : petite musique et bruitages générés (libres de droits)
 
-## Installation (copier‑coller dans Studio)
-1. **ServerScriptService** → clic droit → *Insert Object* → **Script** → colle le contenu de
-   `src/ServerScriptService/RealisticGraphics.server.lua`
-2. **StarterPlayer > StarterPlayerScripts** → *Insert Object* → **LocalScript** → colle
-   `src/StarterPlayerScripts/RealisticCamera.client.lua`
-3. ⚠️ **Important** : sélectionne **Lighting** dans l'Explorer → Propriétés →
-   **Technology = Future** (Roblox ne permet pas de le changer par script).
-4. Dans le jeu : *Échap > Paramètres > Qualité graphique* → mets au **maximum (10)**
-   sinon les ombres/reflets ne s'affichent pas.
-
-Avec Rojo : `rojo serve` (le fichier `default.project.json` est déjà prêt).
-
-## Changer l'ambiance
-En haut de `RealisticGraphics.server.lua` :
-```lua
-local PRESET = "CleanHD"   -- "CleanHD" (net, style TikTok), "Jour", "CoucherDeSoleil" ou "Nuit"
+## Re-générer
+```bash
+cd reel && node render.js   # nécessite playwright, ffmpeg, python3 + numpy
 ```
 
-## Encore plus réaliste
-- Remplace les parts lisses (`SmoothPlastic`) par des matériaux comme `Concrete`, `Metal`, `Wood`…
-- Ajoute des `SurfaceAppearance` (textures PBR) sur les objets importants comme l'épée.
-- Ajoute des `PointLight` / `SpotLight` avec `Shadows = true` pour les lampes.
+## Le contenu
+1. Accroche : « Ces tours à Nanterre cachent une histoire de ouf » / TOURS NUAGES
+2. Années 50-60 : le bidonville de La Folie (pas d'électricité, une seule fontaine)
+3. Juin 1971 : le bidonville est rasé, les familles relogées en cités de transit
+4. 1973 : l'architecte Émile Aillaud reçoit la commande
+5. L'idée : des tours qui se fondent dans le ciel, mosaïque en pâte de verre
+6. Fenêtres rondes, carrées et en goutte d'eau
+7. 18 tours, 1973 → 1981, surnom « Tours Nuages »
+8. Label « Architecture contemporaine remarquable » + rénovation lancée le 18 mars 2023
+9. Outro : Abonne-toi

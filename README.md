@@ -1,6 +1,6 @@
 # Reel — Comment les Tours Aillaud (Tours Nuages) de Nanterre sont nées
 
-Vidéo verticale 1080×1920, 40 s, style motion design TikTok/Reels :
+Vidéo verticale 1080×1920, 48 s, style motion design TikTok/Reels :
 **`reel/reel_nanterre.mp4`**
 
 Toute la vidéo est générée par du code (aucune IA vidéo) :
@@ -13,13 +13,17 @@ Toute la vidéo est générée par du code (aucune IA vidéo) :
 cd reel && node render.js   # nécessite playwright, ffmpeg, python3 + numpy
 ```
 
-## Le contenu
-1. Accroche : « Ces tours à Nanterre cachent une histoire de ouf » / TOURS NUAGES
-2. Années 50-60 : le bidonville de La Folie (pas d'électricité, une seule fontaine)
-3. Juin 1971 : le bidonville est rasé, les familles relogées en cités de transit
-4. 1973 : l'architecte Émile Aillaud reçoit la commande
-5. L'idée : des tours qui se fondent dans le ciel, mosaïque en pâte de verre
-6. Fenêtres rondes, carrées et en goutte d'eau
-7. 18 tours, 1973 → 1981, surnom « Tours Nuages »
-8. Label « Architecture contemporaine remarquable » + rénovation lancée le 18 mars 2023
-9. Outro : Abonne-toi
+## Le contenu (v2)
+1. Accroche : TOURS NUAGES au coucher du soleil, tours 3D avec lumière, reflets et ombres
+2. Archive façon vieux film (sépia, grain) : le bidonville de La Folie, années 50-60
+3. Juin 1971 : un bulldozer rase le bidonville, familles relogées en cités de transit
+4. 1973 : plan d'architecte animé, Émile Aillaud reçoit la commande
+5. Chantier en accéléré avec grue, compteur 1973 → 1981
+6. Zoom arrière depuis les carreaux de mosaïque jusqu'à la tour entière
+7. Fenêtres rondes, carrées et en goutte d'eau
+8. Les 18 tours numérotées, surnom « Tours Nuages »
+9. Passage du jour à la nuit, label + rénovation lancée le 18 mars 2023
+10. Fin : « ON FAIT QUELLE VILLE MAINTENANT ? » avec sondage et commentaire
+
+Le rendu utilise un flou de mouvement (3 sous-images par image) et un étalonnage grain + vignettage.
+Après `node render.js`, recompresser : `ffmpeg -i reel_nanterre_raw.mp4 -crf 22 -c:a copy reel_nanterre.mp4`.

@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Anton;src:url(fonts/anton-latin-400-normal.woff2)}
+@font-face{font-family:InterX;src:url(fonts/inter-latin-800-normal.woff2);font-weight:800}
+</style></head><body><canvas id="c" width="1080" height="1080"></canvas><script>
+const c=document.getElementById('c'),g=c.getContext('2d'),S=1080,C=540;
+function blob(x,y,r,col){const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,col.replace(/[\d.]+\)$/,'0)'));g.fillStyle=gr;g.fillRect(0,0,S,S)}
+function grain(a){const id=g.getImageData(0,0,S,S),d=id.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*a;d[i]+=n;d[i+1]+=n;d[i+2]+=n}g.putImageData(id,0,0)}
+function pin(x,y,s,fill){g.save();g.translate(x,y);g.scale(s,s);g.beginPath();g.moveTo(0,60);g.bezierCurveTo(-10,35,-45,10,-45,-20);g.arc(0,-20,45,Math.PI,0);g.bezierCurveTo(45,10,10,35,0,60);g.closePath();g.fillStyle=fill;g.shadowColor='rgba(0,0,0,.35)';g.shadowBlur=30;g.shadowOffsetY=10;g.fill();g.shadowColor='transparent';g.fillStyle='rgba(255,255,255,.95)';g.beginPath();g.arc(0,-20,17,0,7);g.fill();g.restore()}
+function gradText(txt,x,y,size,stops,glow){g.font=size+'px Anton';g.textAlign='center';const w=g.measureText(txt).width;const gr=g.createLinearGradient(x-w/2,y-size*.8,x+w/2,y);stops.forEach((s,i)=>gr.addColorStop(i/(stops.length-1),s));
+ if(glow){g.shadowColor=glow;g.shadowBlur=50}else{g.shadowColor='rgba(0,0,0,.45)';g.shadowBlur=30;g.shadowOffsetY=10}g.fillStyle=gr;g.fillText(txt,x,y);g.shadowColor='transparent';g.shadowOffsetY=0;return w}
+function ring(stops,w=30){const gr=g.createConicGradient(-Math.PI/2,C,C);stops.forEach((s,i)=>gr.addColorStop(i/(stops.length-1),s));g.strokeStyle=gr;g.lineWidth=w;g.beginPath();g.arc(C,C,C-w/2,0,7);g.stroke()}
+function skyline(y,col){g.fillStyle=col;let x=60;let i=0;while(x<1020){const w=50+((i*37)%60),h=60+((i*73)%170);g.fillRect(x,y-h,w-8,h);for(let wy=y-h+18;wy<y-10;wy+=26)for(let wx=x+10;wx<x+w-18;wx+=18){if(((wx*7+wy*13+i)%5)<2){g.fillStyle='rgba(255,220,150,.55)';g.fillRect(wx,wy,8,12);g.fillStyle=col}}x+=w;i++}}
+window.draw=function(v){g.clearRect(0,0,S,S);g.globalAlpha=1;
+ if(v==='A'){ // mesh coucher de soleil
+  g.fillStyle='#1a0b3d';g.fillRect(0,0,S,S);blob(150,150,700,'rgba(255,59,48,.95)');blob(950,250,650,'rgba(255,160,40,.85)');blob(250,950,700,'rgba(120,40,220,.95)');blob(900,950,600,'rgba(30,120,255,.85)');blob(540,560,380,'rgba(255,80,140,.5)');
+  grain(26);pin(C,250,1.5,'#fff');
+  gradText('HISTOIRE',C,630,230,['#ffffff','#ffffff']);gradText('DE VILLE',C,850,200,['#fff3b0','#ffd23f','#ffffff']);ring(['#fff','rgba(255,255,255,.6)','#fff'],22);
+ }
+ if(v==='B'){ // dark + néon dégradé
+  const bg=g.createRadialGradient(C,C*0.9,50,C,C,760);bg.addColorStop(0,'#1d1f3a');bg.addColorStop(1,'#07070d');g.fillStyle=bg;g.fillRect(0,0,S,S);
+  blob(C,C,520,'rgba(255,59,48,.22)');skyline(1080,'#0e0f1c');grain(18);
+  pin(C,230,1.35,(()=>{const gr=g.createLinearGradient(-45,-65,45,60);gr.addColorStop(0,'#ff3b30');gr.addColorStop(1,'#ff9f0a');return gr})());
+  gradText('HISTOIRE',C,620,235,['#ff2d55','#ff3b30','#ff9f0a','#ffd60a'],'rgba(255,80,40,.7)');
+  gradText('DE VILLE',C,840,200,['#ffffff','#e6e6ff'],'rgba(255,255,255,.35)');
+  ring(['#ff2d55','#ff9f0a','#ffd60a','#30d158','#0a84ff','#bf5af2','#ff2d55'],30);
+ }
+ if(v==='C'){ // dégradé bleu-violet-rose + skyline
+  const bg=g.createLinearGradient(0,0,S,S);bg.addColorStop(0,'#0a84ff');bg.addColorStop(.5,'#7b2ff7');bg.addColorStop(1,'#ff2d55');g.fillStyle=bg;g.fillRect(0,0,S,S);
+  blob(820,240,420,'rgba(255,214,10,.55)');skyline(1080,'rgba(10,8,30,.55)');grain(22);
+  g.font='800 46px InterX';g.textAlign='center';g.fillStyle='rgba(255,255,255,.9)';g.fillText('📍 TOUTE VILLE A UNE HISTOIRE',C,330);
+  gradText('HISTOIRE',C,600,240,['#ffffff','#ffffff']);
+  g.save();g.font='200px Anton';const w=g.measureText('DE VILLE').width;g.fillStyle='#fff';g.shadowColor='rgba(0,0,0,.35)';g.shadowBlur=30;g.shadowOffsetY=10;g.beginPath();g.roundRect(C-w/2-34,640,w+68,220,40);g.fill();g.restore();
+  gradText('DE VILLE',C,830,200,['#0a84ff','#7b2ff7','#ff2d55']);
+  ring(['#ffd60a','#ff9f0a','#ff2d55','#bf5af2','#0a84ff','#ffd60a'],30);
+ }
+ return c.toDataURL('image/png')};
+</script></body></html>

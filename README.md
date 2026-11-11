@@ -27,3 +27,8 @@ cd reel && node render.js   # nécessite playwright, ffmpeg, python3 + numpy
 
 Le rendu utilise un flou de mouvement (3 sous-images par image) et un étalonnage grain + vignettage.
 Après `node render.js`, recompresser : `ffmpeg -i reel_nanterre_raw.mp4 -crf 22 -c:a copy reel_nanterre.mp4`.
+
+## Voix off
+`reel/reel_nanterre_voix.mp4` = la même vidéo avec une voix off (voix de synthèse Piper « siwis », abaissée vers ~160 Hz
+pour un timbre de garçon un peu aigu, effet micro léger) et la musique qui baisse automatiquement quand la voix parle.
+Script : `reel/voix_off.py` (nécessite `pip install piper-tts` et le modèle `voice-fr-siwis-medium` des releases GitHub de rhasspy/piper v0.0.2).

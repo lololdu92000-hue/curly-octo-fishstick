@@ -29,6 +29,6 @@ Le rendu utilise un flou de mouvement (3 sous-images par image) et un étalonnag
 Après `node render.js`, recompresser : `ffmpeg -i reel_nanterre_raw.mp4 -crf 22 -c:a copy reel_nanterre.mp4`.
 
 ## Voix off
-`reel/reel_nanterre_voix.mp4` = la même vidéo avec une voix off (voix de synthèse Piper « siwis », abaissée vers ~160 Hz
+`reel/reel_nanterre_FINAL.mp4` = la version finale avec la voix ElevenLabs « Emilio », phrase par phrase calée sur chaque scène. (Ancien essai : voix Piper « siwis » abaissée vers ~160 Hz
 pour un timbre de garçon un peu aigu, effet micro léger) et la musique qui baisse automatiquement quand la voix parle.
 Script : `reel/voix_off.py` (nécessite `pip install piper-tts` et le modèle `voice-fr-siwis-medium` des releases GitHub de rhasspy/piper v0.0.2).

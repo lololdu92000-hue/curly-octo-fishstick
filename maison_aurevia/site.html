@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Maison Aurevia — Joaillerie</title>
+<style>
+@font-face{font-family:Geist;src:url(fonts/geist-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:Geist;src:url(fonts/geist-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:Geist;src:url(fonts/geist-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:Instrument;src:url(fonts/instrument-serif-latin-400-normal.woff2)}
+@font-face{font-family:Instrument;src:url(fonts/instrument-serif-latin-400-italic.woff2);font-style:italic}
+:root{--gold:#c9a24b;--gold2:#e9cf8a;--gold3:#8e6b22;--ink:#0d0d0f;--paper:#ffffff;--cream:#faf7f0;--grey:#77736b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1440px;background:#fff;color:var(--ink);font-family:Geist,sans-serif;-webkit-font-smoothing:antialiased}
+section,nav,footer{position:relative;width:1440px;overflow:hidden}
+.serif{font-family:Instrument,serif;font-weight:400}
+.it{font-style:italic}
+.gold{color:var(--gold)}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;background:#fff;border:1px solid #ece4d2;font-size:17px;font-weight:500;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:20px 34px;border-radius:999px;background:var(--ink);color:#fff;font-size:18px;font-weight:500}
+.btn .ar{width:26px;height:26px;border-radius:50%;background:var(--gold);display:grid;place-items:center;color:var(--ink);font-size:15px}
+.btn2{display:inline-flex;padding:20px 30px;border-radius:999px;border:1px solid #d9d2c3;font-size:18px;font-weight:500}
+.logo{width:40px;height:40px;border-radius:11px;background:var(--ink);display:grid;place-items:center}
+h2{font-family:Instrument,serif;font-weight:400;font-size:84px;line-height:.98;letter-spacing:-1.5px}
+.eyebrow{font-size:15px;letter-spacing:3px;text-transform:uppercase;color:var(--gold3);font-weight:600}
+.lead{font-size:20px;line-height:1.55;color:var(--grey)}
+.card{background:#fff;border:1px solid #efe9dc;border-radius:26px}
+.photo{border-radius:24px;overflow:hidden;position:absolute}
+.photo svg{display:block}
+</style></head><body>
+
+<!-- NAV -->
+<nav style="height:90px;display:flex;align-items:center;padding:0 72px;border-bottom:1px solid #f0ebe0">
+ <div style="display:flex;align-items:center;gap:14px">
+  <div class="logo"><svg width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="lg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3dc9a"/><stop offset=".5" stop-color="#c9a24b"/><stop offset="1" stop-color="#8e6b22"/></linearGradient></defs><path d="M12 2.5 L20 21.5 H16.6 L14.9 17 H9.1 L7.4 21.5 H4 Z M10.1 14.3 H13.9 L12 9.2 Z" fill="url(#lg0)"/></svg></div>
+  <div style="font-weight:600;letter-spacing:4px;font-size:17px">MAISON AUREVIA</div>
+ </div>
+ <div style="margin-left:auto;display:flex;gap:38px;font-size:16px;color:#3b3a37"><span>Collections</span><span>Haute Joaillerie</span><span>Atelier</span><span>Boutiques</span></div>
+ <div style="margin-left:46px" class="btn2" ><span style="font-size:15px">Prendre rendez-vous</span></div>
+</nav>
+
+<!-- HERO 90-930 -->
+<section style="height:840px;background:radial-gradient(900px 600px at 78% 40%,#f7efdc 0,#fff 70%)">
+ <div style="position:absolute;left:72px;top:96px;width:690px">
+  <div class="chip" data-layer="hero-chip-1" style="position:absolute;left:0;top:0"><span class="dot"></span>Nouvelle collection Soleil</div>
+  <h1 class="serif" style="position:absolute;top:84px;font-size:118px;line-height:.94;letter-spacing:-2.5px">L'or, sculpté<br>pour <span class="it gold">durer.</span></h1>
+  <p class="lead" style="position:absolute;top:340px;width:540px">Bijoux en or 18 carats, façonnés à la main dans notre atelier. Des pièces pensées pour se transmettre.</p>
+  <div style="position:absolute;top:470px;display:flex;gap:16px">
+   <div class="btn" data-layer="hero-button">Découvrir la collection <span class="ar">→</span></div>
+   <div class="btn2">Notre atelier</div>
+  </div>
+  <div style="position:absolute;top:600px;display:flex;gap:14px">
+   <div class="chip" data-layer="hero-chip-2"><span class="dot"></span>Or 18 carats</div>
+   <div class="chip" data-layer="hero-chip-3"><span class="dot"></span>Pièces numérotées</div>
+  </div>
+ </div>
+ <!-- phone mockup -->
+ <div data-layer="hero-phone" style="position:absolute;left:880px;top:70px;width:340px;height:700px;border-radius:54px;background:#0d0d0f;padding:14px;box-shadow:inset 0 0 0 2px #2a2a2e">
+  <div style="width:100%;height:100%;border-radius:42px;overflow:hidden;background:#faf7f0;position:relative">
+   <div style="height:38px;display:flex;justify-content:center;align-items:center"><div style="width:96px;height:26px;border-radius:20px;background:#0d0d0f"></div></div>
+   <div style="padding:6px 22px;font-size:11px;letter-spacing:3px;font-weight:600">MAISON AUREVIA</div>
+   <div style="margin:10px 18px;height:330px;border-radius:26px;background:radial-gradient(circle at 50% 45%,#2b2418,#0d0d0f 70%);display:grid;place-items:center">
+    <svg width="230" height="230" viewBox="0 0 230 230"><defs><linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".35" stop-color="#e2bf6a"/><stop offset=".7" stop-color="#a77d2c"/><stop offset="1" stop-color="#f1d58c"/></linearGradient><radialGradient id="dm1"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#dfeaf2"/><stop offset="1" stop-color="#9fb3c2"/></radialGradient></defs>
+     <ellipse cx="115" cy="140" rx="70" ry="62" fill="none" stroke="url(#rg1)" stroke-width="16"/><path d="M95 78 L115 52 L135 78 L115 92 Z" fill="url(#dm1)"/><path d="M95 78 L135 78" stroke="#fff" stroke-width="1.5"/></svg>
+   </div>
+   <div style="padding:6px 22px"><div class="serif" style="font-size:30px">Bague Soleil</div><div style="font-size:13px;color:#77736b;margin-top:4px">Or jaune 18 ct · Diamant 0,30 ct</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px"><div style="font-size:20px;font-weight:600">1 890 €</div><div style="padding:12px 18px;border-radius:999px;background:#0d0d0f;color:#fff;font-size:13px">Ajouter</div></div>
+    <div style="display:flex;gap:8px;margin-top:16px"><span style="width:22px;height:22px;border-radius:50%;background:#e2bf6a;border:2px solid #fff;box-shadow:0 0 0 1px #c9a24b"></span><span style="width:22px;height:22px;border-radius:50%;background:#e7e2da"></span><span style="width:22px;height:22px;border-radius:50%;background:#e8b7a0"></span></div>
+   </div>
+  </div>
+ </div>
+ <div class="chip" data-layer="hero-chip-4" style="position:absolute;left:1180px;top:560px"><span class="dot"></span>Livraison offerte</div>
+</section>
+
+<!-- SECTION 2 COLLECTION 930-1750 -->
+<section style="height:820px;background:#fff">
+ <div style="position:absolute;left:72px;top:60px"><div class="eyebrow">La collection</div><h2 style="margin-top:14px">Soleil, <span class="it gold">en or massif.</span></h2></div>
+ <p class="lead" style="position:absolute;left:880px;top:96px;width:480px">Trois pièces signatures, inspirées de la lumière d'un été sans fin.</p>
+ <div class="photo" data-layer="s2-photo-1" style="left:72px;top:250px;width:410px;height:470px">
+  <svg width="410" height="470"><defs><radialGradient id="b1" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#3a3020"/><stop offset="1" stop-color="#0d0d0f"/></radialGradient><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c8"/><stop offset=".4" stop-color="#d9b25a"/><stop offset=".75" stop-color="#94701f"/><stop offset="1" stop-color="#f3d68e"/></linearGradient></defs>
+   <rect width="410" height="470" fill="url(#b1)"/><ellipse cx="205" cy="390" rx="130" ry="18" fill="#000" opacity=".5"/>
+   <ellipse cx="205" cy="250" rx="98" ry="88" fill="none" stroke="url(#g1)" stroke-width="22"/><path d="M178 160 L205 124 L232 160 L205 180 Z" fill="#f4f8fb"/><path d="M178 160 L232 160" stroke="#fff"/>
+   <text x="28" y="440" font-family="Geist" font-size="16" fill="#e9cf8a" letter-spacing="3">BAGUE SOLEIL</text></svg></div>
+ <div class="photo" data-layer="s2-photo-2" style="left:515px;top:250px;width:410px;height:470px">
+  <svg width="410" height="470"><defs><linearGradient id="b2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6efe0"/><stop offset="1" stop-color="#e9dcc0"/></linearGradient></defs>
+   <rect width="410" height="470" fill="url(#b2)"/><path d="M80 90 Q205 330 330 90" fill="none" stroke="url(#g1)" stroke-width="6" stroke-dasharray="2 5"/><path d="M80 90 Q205 330 330 90" fill="none" stroke="#b8913c" stroke-width="2"/>
+   <circle cx="205" cy="255" r="34" fill="url(#g1)"/><circle cx="205" cy="255" r="16" fill="#0d0d0f"/><circle cx="205" cy="255" r="7" fill="#f4f8fb"/>
+   <text x="28" y="440" font-family="Geist" font-size="16" fill="#8e6b22" letter-spacing="3">COLLIER AURORE</text></svg></div>
+ <div class="photo" data-layer="s2-photo-3" style="left:958px;top:250px;width:410px;height:470px">
+  <svg width="410" height="470"><rect width="410" height="470" fill="#0d0d0f"/><circle cx="205" cy="200" r="150" fill="#1d1810"/>
+   <g fill="url(#g1)"><circle cx="150" cy="150" r="10"/><path d="M150 160 Q120 240 150 300 Q180 240 150 160Z"/><circle cx="260" cy="150" r="10"/><path d="M260 160 Q230 240 260 300 Q290 240 260 160Z"/></g>
+   <circle cx="150" cy="268" r="9" fill="#f4f8fb"/><circle cx="260" cy="268" r="9" fill="#f4f8fb"/>
+   <text x="28" y="440" font-family="Geist" font-size="16" fill="#e9cf8a" letter-spacing="3">BOUCLES GOUTTE D'OR</text></svg></div>
+ <div class="chip" data-layer="s2-chip-1" style="position:absolute;left:30px;top:740px">✦ Nouveau</div>
+ <div class="chip" data-layer="s2-chip-2" style="position:absolute;left:1220px;top:740px">✦ Édition limitée</div>
+</section>
+
+<!-- SECTION 3 ATELIER 1750-2550 -->
+<section style="height:800px;background:var(--cream)">
+ <div class="photo" data-layer="s3-photo" style="left:72px;top:90px;width:620px;height:620px">
+  <svg width="620" height="620"><defs><radialGradient id="b3" cx=".55" cy=".45" r=".75"><stop offset="0" stop-color="#5a4626"/><stop offset=".55" stop-color="#1f1a12"/><stop offset="1" stop-color="#0d0d0f"/></radialGradient><radialGradient id="melt" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d8"/><stop offset=".4" stop-color="#f0c766"/><stop offset="1" stop-color="#a5741e"/></radialGradient></defs>
+   <rect width="620" height="620" fill="url(#b3)"/><ellipse cx="310" cy="380" rx="170" ry="60" fill="#151210"/><ellipse cx="310" cy="370" rx="150" ry="46" fill="url(#melt)"/>
+   <path d="M310 120 L330 330 L290 330 Z" fill="#2a2420"/><g fill="#f6d47e" opacity=".9"><circle cx="250" cy="300" r="3"/><circle cx="380" cy="280" r="2"/><circle cx="410" cy="320" r="3"/><circle cx="220" cy="260" r="2"/><circle cx="350" cy="240" r="2"/></g>
+   <text x="34" y="580" font-family="Geist" font-size="16" fill="#e9cf8a" letter-spacing="3">L'ATELIER · PARIS</text></svg></div>
+ <div style="position:absolute;left:770px;top:110px;width:600px"><div class="eyebrow">Le savoir-faire</div><h2 style="margin-top:14px">Chaque pièce,<br><span class="it gold">une main.</span></h2>
+  <p class="lead" style="margin-top:28px;width:540px">De la fonte de l'or au polissage final, un seul artisan suit votre bijou du début à la fin.</p></div>
+ <div class="card" data-layer="s3-stat-1" style="position:absolute;left:770px;top:520px;width:178px;height:150px;padding:26px"><div class="serif" style="font-size:54px">48h</div><div style="color:#77736b;font-size:15px;margin-top:6px">de travail par bague</div></div>
+ <div class="card" data-layer="s3-stat-2" style="position:absolute;left:968px;top:520px;width:178px;height:150px;padding:26px"><div class="serif" style="font-size:54px">18 ct</div><div style="color:#77736b;font-size:15px;margin-top:6px">or certifié</div></div>
+ <div class="card" data-layer="s3-stat-3" style="position:absolute;left:1166px;top:520px;width:178px;height:150px;padding:26px"><div class="serif" style="font-size:54px">∞</div><div style="color:#77736b;font-size:15px;margin-top:6px">garantie à vie</div></div>
+</section>
+
+<!-- SECTION 4 ENGAGEMENTS 2550-3300 -->
+<section style="height:750px;background:#fff">
+ <div style="position:absolute;left:0;width:1440px;top:80px;text-align:center"><div class="eyebrow">Nos engagements</div><h2 style="margin-top:14px">Le luxe, <span class="it gold">sans compromis.</span></h2></div>
+ <div class="card" data-layer="s4-card-1" style="position:absolute;left:72px;top:300px;width:410px;height:330px;padding:38px">
+  <div style="width:64px;height:64px;border-radius:18px;background:#0d0d0f;display:grid;place-items:center"><svg width="30" height="30" viewBox="0 0 30 30"><path d="M15 3 A12 12 0 1 1 5 21" fill="none" stroke="#c9a24b" stroke-width="3"/><path d="M3 15 L5 22 L11 19" fill="none" stroke="#c9a24b" stroke-width="3"/></svg></div>
+  <div class="serif" style="font-size:40px;margin-top:34px">Or recyclé</div><div class="lead" style="font-size:17px;margin-top:10px">Un or responsable, affiné en France.</div></div>
+ <div class="card" data-layer="s4-card-2" style="position:absolute;left:515px;top:300px;width:410px;height:330px;padding:38px;background:#0d0d0f;border-color:#0d0d0f;color:#fff">
+  <div style="width:64px;height:64px;border-radius:18px;background:#c9a24b;display:grid;place-items:center"><svg width="30" height="30" viewBox="0 0 30 30"><path d="M15 3 L26 8 V15 C26 21 21 26 15 28 C9 26 4 21 4 15 V8 Z" fill="none" stroke="#0d0d0f" stroke-width="3"/></svg></div>
+  <div class="serif" style="font-size:40px;margin-top:34px">Garantie à vie</div><div style="font-size:17px;margin-top:10px;color:#bdb6a6;line-height:1.55">Entretien et polissage offerts, pour toujours.</div></div>
+ <div class="card" data-layer="s4-card-3" style="position:absolute;left:958px;top:300px;width:410px;height:330px;padding:38px">
+  <div style="width:64px;height:64px;border-radius:18px;background:#0d0d0f;display:grid;place-items:center"><svg width="30" height="30" viewBox="0 0 30 30"><path d="M5 25 L20 10 M17 7 L23 13" stroke="#c9a24b" stroke-width="3" fill="none"/></svg></div>
+  <div class="serif" style="font-size:40px;margin-top:34px">Gravure offerte</div><div class="lead" style="font-size:17px;margin-top:10px">Vos initiales, vos dates, vos mots.</div></div>
+</section>
+
+<!-- SECTION 5 BOUTIQUE 3300-4100 -->
+<section style="height:800px;background:var(--cream)">
+ <div style="position:absolute;left:72px;top:70px"><div class="eyebrow">Best-sellers</div><h2 style="margin-top:14px">Les <span class="it gold">incontournables.</span></h2></div>
+ <div style="position:absolute;left:1180px;top:150px" class="btn2">Tout voir →</div>
+ <!-- 4 product cards -->
+ <div class="card" data-layer="s5-p1" style="position:absolute;left:72px;top:290px;width:305px;height:440px;overflow:hidden">
+  <svg width="305" height="300"><rect width="305" height="300" fill="#f3ecdc"/><ellipse cx="152" cy="160" rx="70" ry="64" fill="none" stroke="url(#g1)" stroke-width="16"/></svg>
+  <div style="padding:20px 24px"><div class="serif" style="font-size:28px">Jonc Soleil</div><div style="display:flex;justify-content:space-between;margin-top:12px;font-size:17px"><span style="color:#77736b">Or jaune</span><b>1 250 €</b></div></div></div>
+ <div class="card" data-layer="s5-p2" style="position:absolute;left:400px;top:290px;width:305px;height:440px;overflow:hidden">
+  <svg width="305" height="300"><rect width="305" height="300" fill="#0d0d0f"/><path d="M70 60 Q152 260 235 60" fill="none" stroke="url(#g1)" stroke-width="4"/><circle cx="152" cy="190" r="22" fill="url(#g1)"/></svg>
+  <div style="padding:20px 24px"><div class="serif" style="font-size:28px">Collier Aurore</div><div style="display:flex;justify-content:space-between;margin-top:12px;font-size:17px"><span style="color:#77736b">Or jaune</span><b>2 100 €</b></div></div></div>
+ <div class="card" data-layer="s5-p3" style="position:absolute;left:728px;top:290px;width:305px;height:440px;overflow:hidden">
+  <svg width="305" height="300"><rect width="305" height="300" fill="#f3ecdc"/><g fill="url(#g1)"><circle cx="115" cy="110" r="9"/><path d="M115 120 Q90 190 115 240 Q140 190 115 120Z"/><circle cx="190" cy="110" r="9"/><path d="M190 120 Q165 190 190 240 Q215 190 190 120Z"/></g></svg>
+  <div style="padding:20px 24px"><div class="serif" style="font-size:28px">Gouttes d'or</div><div style="display:flex;justify-content:space-between;margin-top:12px;font-size:17px"><span style="color:#77736b">Or jaune</span><b>980 €</b></div></div></div>
+ <div class="card" data-layer="s5-p4" style="position:absolute;left:1056px;top:290px;width:305px;height:440px;overflow:hidden">
+  <svg width="305" height="300"><rect width="305" height="300" fill="#0d0d0f"/><ellipse cx="152" cy="150" rx="90" ry="34" fill="none" stroke="url(#g1)" stroke-width="10"/><ellipse cx="152" cy="140" rx="90" ry="34" fill="none" stroke="#f3d68e" stroke-width="2" opacity=".6"/></svg>
+  <div style="padding:20px 24px"><div class="serif" style="font-size:28px">Bracelet Lien</div><div style="display:flex;justify-content:space-between;margin-top:12px;font-size:17px"><span style="color:#77736b">Or jaune</span><b>1 640 €</b></div></div></div>
+</section>
+
+<!-- SECTION 6 TÉMOIGNAGE 4100-4650 -->
+<section style="height:550px;background:#fff">
+ <div class="card" data-layer="testimonial" style="position:absolute;left:250px;top:110px;width:940px;height:330px;padding:56px 64px;box-shadow:0 1px 0 #efe9dc">
+  <div style="color:#c9a24b;font-size:26px;letter-spacing:6px">★★★★★</div>
+  <div class="serif" style="font-size:44px;line-height:1.15;margin-top:20px">« Une bague que je porte chaque jour, et qui<br>semble <span class="it gold">plus belle chaque année.</span> »</div>
+  <div style="display:flex;align-items:center;gap:16px;margin-top:30px"><div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#e9cf8a,#8e6b22)"></div><div><div style="font-weight:600">Camille R.</div><div style="color:#77736b;font-size:15px">Cliente depuis 2021</div></div></div>
+ </div>
+</section>
+
+<!-- SECTION 7 CTA SOMBRE 4650-5450 -->
+<section style="height:800px;background:#0d0d0f;color:#fff">
+ <div style="position:absolute;left:0;width:1440px;top:150px;text-align:center"><div class="eyebrow" style="color:#c9a24b">Rendez-vous privé</div>
+  <h2 style="margin-top:18px;font-size:100px">Venez la <span class="it" style="color:#e9cf8a">rencontrer.</span></h2>
+  <p style="margin:26px auto 0;width:620px;font-size:20px;line-height:1.55;color:#a7a196">Essayez nos pièces dans notre salon parisien, autour d'une coupe et sans aucune obligation.</p></div>
+ <div data-layer="s7-button" style="position:absolute;left:560px;top:540px;width:320px;height:74px;border-radius:999px;background:linear-gradient(135deg,#f3dc9a,#c9a24b 55%,#8e6b22);color:#0d0d0f;display:grid;place-items:center;font-size:19px;font-weight:600">Réserver un essayage</div>
+</section>
+
+<!-- FOOTER 5450-6720 -->
+<footer style="height:1270px;background:#fff">
+ <div style="position:absolute;left:0;width:1440px;top:200px;text-align:center"><div class="serif" style="font-size:150px;letter-spacing:-3px;line-height:1">Maison <span class="it gold">Aurevia</span></div></div>
+ <div style="position:absolute;left:72px;right:72px;top:470px;border-top:1px solid #eee6d6"></div>
+ <div style="position:absolute;left:72px;top:540px;display:grid;grid-template-columns:repeat(4,250px);gap:40px;font-size:17px;line-height:2.1;color:#3b3a37">
+  <div><div class="eyebrow" style="margin-bottom:14px">Collections</div>Soleil<br>Aurore<br>Gouttes d'or<br>Haute Joaillerie</div>
+  <div><div class="eyebrow" style="margin-bottom:14px">La Maison</div>Notre histoire<br>L'atelier<br>Engagements<br>Presse</div>
+  <div><div class="eyebrow" style="margin-bottom:14px">Service client</div>Livraison<br>Retours<br>Entretien<br>Guide des tailles</div>
+  <div><div class="eyebrow" style="margin-bottom:14px">Suivez-nous</div>Instagram<br>TikTok<br>Pinterest<br>YouTube</div>
+ </div>
+ <div style="position:absolute;left:72px;top:900px;width:1296px;height:150px;border-radius:26px;background:#faf7f0;display:flex;align-items:center;padding:0 48px">
+  <div><div class="serif" style="font-size:40px">La lettre <span class="it gold">Aurevia</span></div><div style="color:#77736b;font-size:16px;margin-top:4px">Nouvelles collections et invitations privées.</div></div>
+  <div style="margin-left:auto;display:flex;gap:12px"><div style="width:360px;height:58px;border-radius:999px;background:#fff;border:1px solid #e6dcc6;display:flex;align-items:center;padding:0 24px;color:#a49d8f">votre@email.fr</div><div class="btn" style="padding:18px 30px">S'inscrire</div></div>
+ </div>
+ <div style="position:absolute;left:72px;right:72px;top:1140px;border-top:1px solid #eee6d6;padding-top:30px;display:flex;color:#77736b;font-size:15px"><span>© Maison Aurevia</span><span style="margin-left:auto;display:flex;gap:34px"><span>Mentions légales</span><span>Confidentialité</span><span>CGV</span></span></div>
+</footer>
+</body></html>

@@ -1,0 +1,352 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Geist;src:url(fonts/geist-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:Geist;src:url(fonts/geist-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:Instrument;src:url(fonts/instrument-serif-latin-400-italic.woff2);font-style:italic}
+html,body{margin:0;background:#000}
+canvas{display:block}
+</style></head><body>
+<canvas id="out" width="1440" height="1152"></canvas>
+<script>
+// ====================================================================
+//  MAISON AUREVIA — fly-over 3D (14.5 s). Tout est calculé dans seek(t).
+// ====================================================================
+const W=1440,H=1152,F=1880,PAD=28,DSF=2;
+const OUT=document.getElementById('out').getContext('2d');
+const glc=document.createElement('canvas');glc.width=W;glc.height=H;
+const gl=glc.getContext('webgl2',{antialias:false,premultipliedAlpha:true,preserveDrawingBuffer:true,alpha:false});
+gl.getExtension('EXT_color_buffer_float');
+const ANI=gl.getExtension('EXT_texture_filter_anisotropic');
+// ---------------- maths
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
+const s5=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*t*(t*(t*6-15)+10)};
+const eOutC=x=>1-Math.pow(1-clamp(x),3);
+const eInOutQ=x=>{x=clamp(x);return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2};
+const DEG=Math.PI/180;
+let PH=6050,NT=3;
+
+// ---------------- vitesse de glisse -> position (intégrée, table 1 ms)
+const CRUISE=765, LY0=330;
+function speed(t){ // part de la vitesse de croisière
+ if(t<0.6) return 0.5*s5(0,0.6,t);
+ if(t<1.25) return 0.5;
+ if(t<1.6) return 0.5+0.5*s5(1.25,1.6,t);
+ if(t<7.3) return 1.0+0.03*Math.sin((t-1.6)/5.7*Math.PI); // entre 1.0 et 1.03
+ return 1.0-0.88*sstep(7.3,8.3,t);
+}
+const DT=0.001,LYTAB=[LY0];for(let i=1;i<=15000;i++){const t=(i-.5)*DT;LYTAB.push(LYTAB[i-1]+speed(t)*CRUISE*DT)}
+const glideY=t=>{const k=clamp(t/DT,0,15000);const i=Math.floor(k),f=k-i;return lerp(LYTAB[i],LYTAB[Math.min(15000,i+1)],f)};
+
+// ---------------- caméra
+const D_START=1360,D_FLY=1700;
+let D_END; // vue d'ensemble : page entière avec 42 px de marge
+function riseU(t){ // trapèze : accélère 7.75-8.35, constant 8.35-8.95, freine 8.95-9.25
+ const a=7.75,b=8.35,c=8.95,d=9.25;let A=0;
+ const tot=(b-a)/2+(c-b)+(d-c)/2;
+ if(t<=a)return 0;
+ if(t<b){const x=t-a;A=x*x/(2*(b-a))}
+ else if(t<c){A=(b-a)/2+(t-b)}
+ else if(t<d){const x=t-c,L=d-c;A=(b-a)/2+(c-b)+x-x*x/(2*L)}
+ else A=tot;
+ return A/tot;
+}
+function camera(t){
+ let tilt=56*DEG,d,Ly,ortho=false;
+ if(t<7.75){d=D_START+(D_FLY-D_START)*eOutC(t/7.75);Ly=glideY(t)}
+ else if(t<9.25){
+  const u=riseU(t);d=Math.exp(lerp(Math.log(D_FLY),Math.log(D_END),u));
+  tilt=56*DEG*(1-s5(8.15,8.95,t));
+  const g=glideY(t);
+  // position écran du bord bas avec la glisse seule, puis on l'amène sur la ligne des 42 px
+  const ct=Math.cos(tilt),st=Math.sin(tilt);const Dg=PH-g;
+  const yg=(d-st*Dg)>1?576+F*ct*Dg/(d-st*Dg):1e4;
+  // max doux : le bord suit la glisse puis se pose sur la ligne des 42 px (y = 1110) sans dépasser
+  const k=12,uu=(yg-1110)/k;
+  if((d-st*Dg)<=1||uu>30){Ly=g}else{const Y=1110+k*Math.log1p(Math.exp(uu))-576;Ly=PH-Y*d/(F*ct+Y*st)}
+ } else if(t<9.47){
+  tilt=0;d=D_END/(1+0.035*s5(9.25,9.47,t));Ly=PH/2;
+ } else {
+  tilt=0;
+  const dOver=D_END/1.035, s0=F/dOver, s1=1018/1440;
+  let s;
+  if(t<9.97){s=Math.exp(lerp(Math.log(s0),Math.log(s1),eInOutQ((t-9.47)/0.5)))}
+  else s=s1*(1+0.02*s5(9.97,14.5,t));
+  d=F/s;
+  const top0=576-(PH/2)*s0; // bord haut au départ du piqué
+  let topY;
+  if(t<9.97){topY=lerp(top0,283,s5(9.70,9.97,t))}
+  else{ // fin : on garde le centre de la carte fixe pendant le lent rapprochement
+   const cy=283+930*s1/2;topY=cy-930*s/2}
+  Ly=(576-topY)/s;
+ }
+ const C=[720,d*Math.cos(tilt),Ly+d*Math.sin(tilt)];
+ const Fw=[0,-Math.cos(tilt),-Math.sin(tilt)],R=[1,0,0],U=[0,Math.sin(tilt),-Math.cos(tilt)];
+ return {C,Fw,R,U,d,tilt,Ly};
+}
+function project(cam,p){const v=[p[0]-cam.C[0],p[1]-cam.C[1],p[2]-cam.C[2]];const zc=v[0]*cam.Fw[0]+v[1]*cam.Fw[1]+v[2]*cam.Fw[2];
+ const xc=v[0]*cam.R[0]+v[1]*cam.R[1]+v[2]*cam.R[2],yc=v[0]*cam.U[0]+v[1]*cam.U[1]+v[2]*cam.U[2];return [W/2+F*xc/zc,H/2-F*yc/zc,zc]}
+
+// ---------------- GL utilitaires
+function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s)+src);return s}
+function prog(vs,fs){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+ const u={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);u[a.name]=gl.getUniformLocation(p,a.name)}return {p,u}}
+function texFrom(img,mip=true){const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,mip?gl.LINEAR_MIPMAP_LINEAR:gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ if(mip){gl.generateMipmap(gl.TEXTURE_2D);if(ANI)gl.texParameterf(gl.TEXTURE_2D,ANI.TEXTURE_MAX_ANISOTROPY_EXT,16)}return t}
+const loadImg=src=>new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=src});
+
+const COMMON=`
+uniform vec2 uRes;
+vec3 floorCol(vec2 fc){vec2 q=(fc/uRes-0.5)*vec2(1.0,0.8);float k=smoothstep(0.08,0.62,length(q));return mix(vec3(0.976,0.984,0.984),vec3(0.949,0.953,0.965),k);}
+float coc(float z,float f){float r=z<f?75.0*(f-z)/z:6.0*(z-f)/z;return min(r,120.0);}
+`;
+const VS=`#version 300 es
+in vec3 aPos;in vec2 aUV;in vec2 aPage;
+uniform vec3 uC,uR,uU,uF;uniform float uFoc;uniform vec2 uRes;
+out vec2 vUV;out vec2 vPage;out float vZ;
+void main(){vec3 v=aPos-uC;float xc=dot(v,uR),yc=dot(v,uU),zc=dot(v,uF);
+ vZ=zc;vUV=aUV;vPage=aPage;float n=5.0,fa=60000.0;
+ gl_Position=vec4(xc*uFoc/(uRes.x*0.5),yc*uFoc/(uRes.y*0.5),(zc*(fa+n)-2.0*fa*n)/(fa-n),zc);}`;
+const FS=`#version 300 es
+precision highp float;
+in vec2 vUV;in vec2 vPage;in float vZ;
+uniform sampler2D uTex;uniform int uMode;uniform float uFocus,uAlpha,uLod,uHazeY,uHaze,uPieceHaze,uR0;
+uniform vec4 uMask;uniform float uMaskR;uniform vec4 uCol;uniform vec4 uLocal;// local: size.xy, rect radius, pad
+layout(location=0) out vec4 o0;layout(location=1) out vec4 o1;
+${COMMON}
+float sdRR(vec2 p,vec4 r,float rad){vec2 c=(r.xy+r.zw)*0.5,h=(r.zw-r.xy)*0.5;vec2 q=abs(p-c)-h+rad;return length(max(q,0.0))+min(max(q.x,q.y),0.0)-rad;}
+void main(){
+ vec4 c;
+ if(uMode==0){ // page : texture + coins arrondis + brume sous le héros
+  c=texture(uTex,vUV);
+  float sd=sdRR(vPage,uMask,uMaskR);float px=fwidth(vPage.x)+fwidth(vPage.y);
+  float m=1.0-smoothstep(-px*0.5,px*0.5,sd);
+  if(vPage.y>uHazeY){c.rgb=mix(c.rgb,floorCol(gl_FragCoord.xy)*c.a,uHaze);}
+  c*=m;
+ } else if(uMode==1){ // ombre d'un élément (même image, aplat #1a2133, floutée)
+  float a=textureLod(uTex,vUV,uLod).a;c=vec4(vec3(0.102,0.129,0.2),1.0)*a*0.26;
+  float sd=sdRR(vPage,uMask,uMaskR);c*=1.0-smoothstep(-1.0,1.0,sd);
+ } else if(uMode==2){ // élément levé
+  c=texture(uTex,vUV);c.rgb=mix(c.rgb,floorCol(gl_FragCoord.xy)*c.a,uPieceHaze);
+ } else if(uMode==3){ // tranche blanche (aplat arrondi)
+  vec2 p=vUV*uLocal.xy;float sd=sdRR(p,vec4(uLocal.w,uLocal.w,uLocal.x-uLocal.w,uLocal.y-uLocal.w),uLocal.z);
+  c=uCol*(1.0-smoothstep(-1.0,1.0,sd));
+ } else if(uMode==5){
+  float sd=sdRR(vPage,uLocal,uLocal.z>0.0?0.0:0.0);
+  vec4 R=uCol;float sdr=sdRR(vPage,R,uLod);
+  float a=1.0-smoothstep(-uR0,uR0,sdr);
+  float sm=sdRR(vPage,uMask,uMaskR);a*=1.0-smoothstep(-1.0,1.0,sm);
+  c=vec4(vec3(0.102,0.129,0.2),1.0)*a*0.26;
+ } else { // ombre large et douce de la page
+  float sd=sdRR(vPage-vec2(0.0,18.0*uR0),uMask,uMaskR);c=vec4(vec3(0.10,0.12,0.18),1.0)*0.11*exp(-max(sd,0.0)/(70.0*uR0))*(sd<0.0?1.0:1.0);
+ }
+ c*=uAlpha;
+ o0=c;o1=vec4(coc(vZ,uFocus)/120.0*c.a,0.0,0.0,c.a);
+}`;
+const VS2=`#version 300 es
+in vec2 aP;out vec2 vS;void main(){vS=aP*0.5+0.5;gl_Position=vec4(aP,0.0,1.0);}`;
+const FS_FLOOR=`#version 300 es
+precision highp float;in vec2 vS;uniform vec3 uC,uR,uU,uF;uniform float uFoc,uFocus;
+layout(location=0) out vec4 o0;layout(location=1) out vec4 o1;
+${COMMON}
+void main(){vec2 fc=gl_FragCoord.xy;float xs=(fc.x-uRes.x*0.5)/uFoc,ys=(fc.y-uRes.y*0.5)/uFoc;
+ vec3 d=uR*xs+uU*ys+uF;float z=1e6;if(d.y<-1e-4)z=-uC.y/d.y;
+ o0=vec4(floorCol(fc),1.0);o1=vec4(coc(z,uFocus)/120.0,0.0,0.0,1.0);}`;
+const FS_DOF=`#version 300 es
+precision highp float;in vec2 vS;uniform sampler2D uCol,uRad;uniform vec2 uRes;out vec4 o;
+void main(){vec2 uv=vS;float rc=texture(uRad,uv).r*120.0;
+ float rn=textureLod(uRad,uv,4.0).r*120.0;float Rs=max(rc,rn*1.25);
+ vec4 base=texture(uCol,uv);
+ if(Rs<0.6){o=vec4(base.rgb,1.0);return;}
+ float lod=log2(max(1.0,Rs/4.5));
+ vec3 acc=textureLod(uCol,uv,max(0.0,log2(max(1.0,rc/4.5)))).rgb;float wsum=1.0;
+ for(int i=0;i<40;i++){float fi=float(i);float rr=sqrt((fi+0.5)/40.0)*Rs;float a=fi*2.39996323;
+  vec2 off=vec2(cos(a),sin(a))*rr/uRes;float rt=textureLod(uRad,uv+off,0.0).r*120.0;
+  float w=clamp(max(rt,rc)-rr+1.0,0.0,1.0);
+  acc+=textureLod(uCol,uv+off,lod).rgb*w;wsum+=w;}
+ o=vec4(acc/wsum,1.0);}`;
+
+let P,PF,PD,quadBuf,fsBuf,fbo,colTex,radTex,vao,vao2;
+const TEX={};let LAYERS=[];
+async function init(){
+ const meta=await (await fetch('cap/layers.json')).json();PH=meta.pageH;LAYERS=meta.layers;
+ D_END=F*PH/1068;
+ P=prog(VS,FS);PF=prog(VS2,FS_FLOOR);PD=prog(VS2,FS_DOF);
+ // tuiles de page
+ NT=Math.ceil(PH/2048);TEX.page=[];for(let i=0;i<NT;i++){TEX.page.push(texFrom(await loadImg(`cap/page_${i}.png`)))}
+ for(const L of LAYERS){TEX[L.id]=texFrom(await loadImg(`cap/${L.id}.png`))}
+ TEX.logo=texFrom(await loadImg('cap/logo.png'));
+ LOGO_IMG=await loadImg('cap/logo.png');
+ // buffers
+ quadBuf=gl.createBuffer();vao=gl.createVertexArray();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,quadBuf);gl.bufferData(gl.ARRAY_BUFFER,4*7*4,gl.DYNAMIC_DRAW);
+ const st=7*4;[['aPos',3,0],['aUV',2,12],['aPage',2,20]].forEach(([n,s,o])=>{const l=gl.getAttribLocation(P.p,n);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,s,gl.FLOAT,false,st,o)});
+ fsBuf=gl.createBuffer();vao2=gl.createVertexArray();gl.bindVertexArray(vao2);gl.bindBuffer(gl.ARRAY_BUFFER,fsBuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ for(const pp of [PF,PD]){const l=gl.getAttribLocation(pp.p,'aP');if(l>=0){gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0)}}
+ // FBO MRT : couleur + rayon de flou (mipmappés)
+ const mkT=()=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texStorage2D(gl.TEXTURE_2D,11,gl.RGBA8,W,H);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t};
+ colTex=mkT();radTex=mkT();fbo=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);
+ gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,colTex,0);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT1,gl.TEXTURE_2D,radTex,0);
+ gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);
+ await document.fonts.load('500 74px Geist');await document.fonts.load('600 21px Geist');await document.fonts.load('italic 82px Instrument');
+ return true;
+}
+let LOGO_IMG;
+
+// ---------------- dessin d'un quad monde
+function quad(pts,uvs,pages){const a=new Float32Array(28);for(let i=0;i<4;i++){a.set(pts[i],i*7);a.set(uvs[i],i*7+3);a.set(pages[i],i*7+5)}
+ gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,quadBuf);gl.bufferSubData(gl.ARRAY_BUFFER,0,a);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)}
+function setU(name,v){const l=P.u[name];if(l==null)return;if(typeof v==='number'){if(name==='uMode')gl.uniform1i(l,v);else gl.uniform1f(l,v)}else if(v.length===2)gl.uniform2fv(l,v);else if(v.length===3)gl.uniform3fv(l,v);else gl.uniform4fv(l,v)}
+
+// ---------------- les éléments qui se lèvent
+const HERO_BOTTOM=930;
+function lid(id){return LAYERS.find(l=>l.id===id)}
+function pieceState(L,t,cam){
+ const cy=L.y+L.h/2;let z=0,ang=0;
+ const near=(Lmax,A)=>{const a=cy-cam.Ly;const p=sstep(1050,300,a);return [Lmax*p,A*p]};
+ const id=L.id;
+ if(id==='hero-phone'){z=30;ang=0}
+ else if(id==='hero-button'){z=20}
+ else if(id.startsWith('hero-chip')){const k=+id.slice(-1);const p=s5(0.1+k*0.08,1.0+k*0.08,t);z=lerp(6,60+k*5,p);ang=30*p}
+ else if(id.startsWith('s2-photo')){const k=+id.slice(-1);const p=s5(1.35+k*0.12,2.45+k*0.08,t);z=lerp(8,100+k*10,p);ang=46*p}
+ else if(id.startsWith('s2-chip')){const p=s5(1.35,2.35,t);z=lerp(8,200,p);ang=54*p}
+ else if(id==='s3-photo'){[z,ang]=near(40,20)}
+ else if(id.startsWith('s3-stat')){[z,ang]=near(25,0)}
+ else if(id.startsWith('s4-card')){[z,ang]=near(30,0)}
+ else if(id.startsWith('s5-p')){[z,ang]=near(35,10)}
+ else if(id==='testimonial'){const p=s5(5.45,6.3,t);z=lerp(22,112,p);ang=30*p}
+ else if(id==='s7-button'){[z,ang]=near(25,0)}
+ // la montée : tout se repose doucement
+ const settle=s5(7.75,9.0,t);z=lerp(z,Math.min(z,10),settle);ang=lerp(ang,0,settle);
+ if(t>9.47){z=lerp(z,id.startsWith('hero')?4:z,s5(9.47,9.97,t))}
+ return {z,ang};
+}
+function pieceGeom(L,z,ang,lift=0){ // coins du quad (avec la marge 28 px), rotation autour du milieu
+ const x0=L.x-PAD,x1=L.x+L.w+PAD,hh=(L.h+2*PAD)/2,cy=L.y+L.h/2;const s=Math.sin(ang*DEG),c=Math.cos(ang*DEG);
+ const P=(x,dy)=>[x,z+lift+(-dy)*s,cy+dy*c];
+ return [P(x0,-hh),P(x1,-hh),P(x0,hh),P(x1,hh)];
+}
+
+// ---------------- tuiles du logo dans le monde
+function logoTiles(t,cam){
+ const tiles=[];const bx=600,by=689;
+ const targets=[[-150,70,190,230],[-70,250,145,165],[1590,60,200,240],[1505,240,150,175]];
+ for(let k=0;k<4;k++){const st=[bx+k*44,by,32,0.5];const tg=targets[k];
+  const p=s5(0.1+k*0.05,1.35,t);let x=lerp(st[0],tg[0],p),y=lerp(st[1],tg[1],p),size=lerp(st[2],tg[2],p),h=lerp(st[3],tg[3],p)+Math.sin(p*Math.PI)*60;
+  y+=300*s5(1.2,2.4,t)+ (t>2.4?(t-2.4)*40:0);
+  const ang=lerp(0,40,p);
+  if(t<3.2)tiles.push({x,y,size,h,ang})}
+ // tuile qui passe près de l'objectif, à gauche, vers 5.4 s
+ if(t>4.6&&t<6.4){const y=glideY(5.4)+780;tiles.push({x:430,y,size:150,h:430,ang:55})}
+ return tiles;
+}
+
+// ---------------- rendu d'un sous-frame
+function frameGL(t){
+ const cam=camera(t);const focus=cam.d;
+ gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,null);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,TEX.logo);
+ gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);gl.viewport(0,0,W,H);gl.disable(gl.DEPTH_TEST);
+ // sol
+ gl.disable(gl.BLEND);gl.useProgram(PF.p);gl.bindVertexArray(vao2);
+ const cu=(pp)=>{gl.uniform3fv(pp.u.uC,cam.C);gl.uniform3fv(pp.u.uR,cam.R);gl.uniform3fv(pp.u.uU,cam.U);gl.uniform3fv(pp.u.uF,cam.Fw);gl.uniform1f(pp.u.uFoc,F);gl.uniform2fv(pp.u.uRes,[W,H])};
+ cu(PF);gl.uniform1f(PF.u.uFocus,focus);gl.drawArrays(gl.TRIANGLES,0,3);
+ // scène
+ gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.useProgram(P.p);cu(P);setU('uFocus',focus);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(P.u.uTex,0);
+ // masque de page (piqué) + brume sous le héros
+ const sMask=t>9.47?s5(9.62,9.97,t):0;const maskBottom=lerp(PH,HERO_BOTTOM,sMask);
+ const sCard=1018/1440;const maskR=lerp(24,38/sCard,s5(9.47,9.97,t));
+ const haze=t>9.47?s5(9.47,9.75,t):0;
+ const mask=[0,0,1440,maskBottom];
+ setU('uMask',mask);setU('uMaskR',maskR);setU('uHazeY',HERO_BOTTOM);setU('uHaze',haze);setU('uAlpha',1);
+ // ombre large de la page
+ const scr=F/cam.d; // échelle écran/page au centre
+ const r0=clamp(0.7/scr,1,4);setU('uMode',4);setU('uR0',r0);const e=260*r0;quad([[-e,0,-e],[1440+e,0,-e],[-e,0,maskBottom+e],[1440+e,0,maskBottom+e]],[[0,0],[1,0],[0,1],[1,1]],[[-e,-e],[1440+e,-e],[-e,maskBottom+e],[1440+e,maskBottom+e]]);
+ // page (3 tuiles)
+ setU('uMode',0);
+ for(let i=0;i<NT;i++){const y0=i*2048,y1=Math.min(PH,(i+1)*2048);if(y0>=maskBottom)continue;gl.bindTexture(gl.TEXTURE_2D,TEX.page[i]);
+  quad([[0,0,y0],[1440,0,y0],[0,0,y1],[1440,0,y1]],[[0,0],[1,0],[0,1],[1,1]],[[0,y0],[1440,y0],[0,y1],[1440,y1]])}
+ // éléments : ombres puis éléments, du plus bas au plus haut
+ const items=LAYERS.map(L=>{const s=pieceState(L,t,cam);return {L,...s}});
+ const tiles=logoTiles(t,cam);
+ setU('uMode',5);
+ const shadowRect=(x0,y0,x1,y1,rad,blur,alpha,useMask)=>{setU('uCol',[x0,y0,x1,y1]);setU('uLod',rad);setU('uR0',blur);setU('uAlpha',alpha);
+  setU('uMask',useMask?mask:[-1e5,-1e5,1e5,1e5]);const e=blur*2+4;
+  quad([[x0-e,0,y0-e],[x1+e,0,y0-e],[x0-e,0,y1+e],[x1+e,0,y1+e]],[[0,0],[1,0],[0,1],[1,1]],[[x0-e,y0-e],[x1+e,y0-e],[x0-e,y1+e],[x1+e,y1+e]])};
+ const RADS={'hero-phone':54,'hero-button':33,'s7-button':37};
+ for(const it of items){if(it.L.y>maskBottom)continue;const z=it.z;const blur=7+0.5*z,ox=0.10*z,oy=4+0.36*z;const c=Math.cos(it.ang*DEG);
+  const L=it.L;const cy=L.y+L.h/2+oy,hh=L.h/2*c;const rad=RADS[L.id]??(L.id.includes('chip')?24:24);
+  shadowRect(L.x+ox,cy-hh,L.x+L.w+ox,cy+hh,Math.min(rad,hh),blur,L.y>HERO_BOTTOM?(1-haze):1,true)}
+ for(const tl of tiles){const z=tl.h,blur=7+0.5*z,ox=0.10*z,oy=4+0.36*z;const c=Math.cos(tl.ang*DEG),hs=tl.size/2;
+  shadowRect(tl.x-hs+ox,tl.y-hs*c+oy,tl.x+hs+ox,tl.y+hs*c+oy,tl.size*0.23,blur,0.9,false)}
+ setU('uMask',mask);
+ // éléments + tuiles triés par hauteur
+ const draws=[...items.filter(it=>it.L.y<=maskBottom).map(it=>({k:'p',z:it.z,it})),...tiles.map(tl=>({k:'t',z:tl.h,tl}))].sort((a,b)=>a.z-b.z);
+ for(const dr of draws){
+  if(dr.k==='p'){const it=dr.it;const below=it.L.y+it.L.h/2>HERO_BOTTOM;const ph=below?haze:0;
+   setU('uPieceHaze',Math.min(1,ph*1.05));setU('uAlpha',below?1-sstep(0.85,1.0,haze):1);
+   if(it.L.id==='testimonial'){ // tranche blanche de 34 px
+    const g=pieceGeom(it.L,it.z,it.ang,-34);setU('uMode',3);setU('uCol',[1,1,1,1]);setU('uLocal',[it.L.w+2*PAD,it.L.h+2*PAD,26,PAD]);
+    quad(g,[[0,0],[1,0],[0,1],[1,1]],[[0,0],[0,0],[0,0],[0,0]]);
+    // flanc avant : épaisseur visible sous le bord bas de la carte
+    {const L=it.L,s=Math.sin(it.ang*DEG),c=Math.cos(it.ang*DEG),cy=L.y+L.h/2,dy=L.h/2;const xa=L.x+26,xb=L.x+L.w-26;
+     const yT=it.z-dy*s,yB=it.z-34-dy*s,zz=cy+dy*c;setU('uLocal',[L.w,34,0,0]);
+     quad([[xa,yT,zz],[xb,yT,zz],[xa,yB,zz],[xb,yB,zz]],[[0,0],[1,0],[0,1],[1,1]],[[0,0],[0,0],[0,0],[0,0]]);}
+   }
+   setU('uMode',2);gl.bindTexture(gl.TEXTURE_2D,TEX[it.L.id]);quad(pieceGeom(it.L,it.z,it.ang),[[0,0],[1,0],[0,1],[1,1]],[[0,0],[0,0],[0,0],[0,0]]);
+  } else {const tl=dr.tl;setU('uMode',2);setU('uPieceHaze',0);setU('uAlpha',1);gl.bindTexture(gl.TEXTURE_2D,TEX.logo);
+   const hs=tl.size/2,s=Math.sin(tl.ang*DEG),c=Math.cos(tl.ang*DEG);const Pt=(dx,dy)=>[tl.x+dx,tl.h+(-dy)*s,tl.y+dy*c];
+   quad([Pt(-hs,-hs),Pt(hs,-hs),Pt(-hs,hs),Pt(hs,hs)],[[0,0],[1,0],[0,1],[1,1]],[[0,0],[0,0],[0,0],[0,0]])}
+ }
+ // mipmaps + profondeur de champ -> écran
+ gl.disable(gl.BLEND);
+ gl.bindTexture(gl.TEXTURE_2D,colTex);gl.generateMipmap(gl.TEXTURE_2D);gl.bindTexture(gl.TEXTURE_2D,radTex);gl.generateMipmap(gl.TEXTURE_2D);
+ gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.useProgram(PD.p);gl.bindVertexArray(vao2);
+ gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,colTex);gl.uniform1i(PD.u.uCol,0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,radTex);gl.uniform1i(PD.u.uRad,1);
+ gl.uniform2fv(PD.u.uRes,[W,H]);gl.drawArrays(gl.TRIANGLES,0,3);gl.activeTexture(gl.TEXTURE0);
+ return cam;
+}
+
+// ---------------- carte de fin (2D par-dessus)
+const LINE1="L'élégance, à l'état pur.",TAIL="Signée Maison Aurevia.";
+function words(ctx,text,font,y,t0,step,col,t){ctx.font=font;const ws=text.split(' ');const sp=ctx.measureText(' ').width;const tot=ws.reduce((a,w)=>a+ctx.measureText(w).width,0)+sp*(ws.length-1);
+ let x=W/2-tot/2;ws.forEach((w,i)=>{const p=clamp((t-(t0+i*step))/0.34);const e=1-Math.pow(1-p,3);const ww=ctx.measureText(w).width;
+  if(p>0){ctx.save();ctx.globalAlpha=e;ctx.filter=`blur(${(12*(1-e)).toFixed(2)}px)`;ctx.fillStyle=col;ctx.fillText(w,x,y+16*(1-e));ctx.restore()}x+=ww+sp})}
+function overlay(t){
+ if(t<9.6)return;const c=OUT;
+ // tuiles logo de la carte
+ const s1=1018/1440*(1+0.02*s5(9.97,14.5,t));const cardW=1440*s1,cardH=930*s1,cy=283+930*(1018/1440)/2,top=cy-cardH/2,left=720-cardW/2;
+ const a=s5(9.72,10.05,t);const dr=(k)=>Math.sin(t*0.7+k)*4;
+ const tile=(x,y,s,blur,alpha,rot)=>{c.save();c.globalAlpha=alpha;if(blur>0.3)c.filter=`blur(${blur}px)`;c.translate(x,y);c.rotate(rot);c.shadowColor='rgba(26,33,51,.28)';c.shadowBlur=24;c.shadowOffsetY=10;c.drawImage(LOGO_IMG,-s/2,-s/2,s,s);c.restore()};
+ // deux grands flous en bas
+ const b=s5(9.8,10.6,t);
+ tile(lerp(-260,40,b)+dr(1),1060+dr(2),430,30,0.85*b,-0.25);
+ tile(lerp(1700,1400,b)+dr(3),1040+dr(4),400,28,0.85*b,0.2);
+ if(a>0){
+  tile(left+18+dr(5),top+16+dr(6),88*a,0,a,-0.12);
+  tile(left+cardW-18+dr(7),top+18+dr(8),88*a,0,a,0.1);
+  tile(1372+dr(9),560+dr(10),120*a,0,a,0.08);
+ }
+ // badge
+ const bp=s5(10.02,10.32,t);if(bp>0){c.save();c.globalAlpha=bp;c.font='600 21px Geist';const tw=c.measureText('Maison Aurevia').width;const w=tw+30+28+18,h=44,x=W/2-w/2,y=44;
+  c.shadowColor='rgba(26,33,51,.10)';c.shadowBlur=18;c.shadowOffsetY=4;c.fillStyle='#fff';c.beginPath();c.roundRect(x,y,w,h,22);c.fill();c.shadowColor='transparent';
+  c.drawImage(LOGO_IMG,x+12,y+8,28,28);c.fillStyle='#0d0d0f';c.textBaseline='middle';c.fillText('Maison Aurevia',x+12+28+12,y+h/2+1);c.restore()}
+ c.textBaseline='alphabetic';
+ words(c,LINE1,'500 74px Geist',172,10.12,0.06,'#0d0d0f',t);
+ words(c,TAIL,'italic 82px Instrument',258,10.36,0.05,'#8b8b92',t);
+}
+
+// ---------------- seek(t) : sous-frames pour le flou de mouvement
+window.seek=function(t,sub=1,span=0.7/60){
+ for(let k=0;k<sub;k++){const tk=t+(sub>1?(k/(sub-1)-0.5)*span:0);frameGL(Math.max(0,Math.min(14.5,tk)));
+  OUT.globalAlpha=1/(k+1);OUT.drawImage(glc,0,0);}
+ OUT.globalAlpha=1;overlay(t);
+};
+window.projectAt=(t,p)=>project(camera(t),p);window.glideAt=t=>glideY(t);window.camAt=t=>{const c=camera(t);return {Ly:c.Ly,d:c.d,tilt:c.tilt}};
+window.ready=init();
+</script></body></html>

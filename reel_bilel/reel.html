@@ -393,9 +393,10 @@ scene(6.0,[[.1,'whoosh_in'],[.35,'boom'],[2.2,'pop'],[3.4,'pop']],lt=>{
  flash(lt,.35);shake(lt,.35,16);
  ctx.font='90px sans-serif';ctx.textAlign='center';if(lt>1)ctx.fillText('🥊🇫🇷🇲🇦',540,1120);ctx.textAlign='left';
  const b=prog(lt,2.2,2.5);if(b>0){ctx.save();ctx.translate(540,1330+Math.sin(lt*6)*8);ctx.scale(eBack(b),eBack(b));shadowOn(30,10,.4);ctx.fillStyle=RED;rr(-430,-62,860,124,62);ctx.fill();shadowOff();
-  ctx.fillStyle='#fff';ctx.font='800 44px InterX';ctx.textAlign='center';ctx.fillText('💪 ENVOIE DE LA FORCE 👇',0,16);ctx.restore()}
- pill(300,1560,'📍 Demain · 19h · Clichy','#fff',INK,40,eOut(prog(lt,3.4,3.8)));
- if(lt>2.4)for(let i=0;i<12;i++){const q=prog(lt,2.4+i*.12,3.6+i*.12);if(q<=0||q>=1)continue;ctx.globalAlpha=1-q;ctx.font='60px sans-serif';ctx.fillText(['🔥','🥊','💪'][i%3],140+hash(i,1)*800,1800-q*600);ctx.globalAlpha=1}
+  ctx.fillStyle='#fff';ctx.font='800 46px InterX';ctx.textAlign='center';ctx.fillText('🎟️ RÉSERVEZ VOS BILLETS',0,16);ctx.restore()}
+ pill(175,1530,'🔗 Lien dans la bio de @jkitou_bilel','#fff',INK,38,eOut(prog(lt,2.9,3.3)));
+ pill(300,1660,'📍 Demain · 19h · Clichy','rgba(20,20,24,.85)','#fff',38,eOut(prog(lt,3.4,3.8)));
+ if(lt>2.4)for(let i=0;i<12;i++){const q=prog(lt,2.4+i*.12,3.6+i*.12);if(q<=0||q>=1)continue;ctx.globalAlpha=1-q;ctx.font='60px sans-serif';ctx.fillText(['🔥','🥊','🎟️'][i%3],(i%2?50:930)+hash(i,1)*90,1880-q*1100);ctx.globalAlpha=1}
 });
 const DURATION=T;
 // ================= render with transitions + motion blur

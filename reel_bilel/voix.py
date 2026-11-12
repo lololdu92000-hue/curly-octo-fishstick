@@ -1,6 +1,6 @@
 import wave,numpy as np,json,sys
 w=wave.open('../el2/voice.wav');sr=w.getframerate();x=np.frombuffer(w.readframes(w.getnframes()),np.int16)/32768
-segs=[(0,5.62),(5.80,9.56),(9.70,14.06),(14.20,18.57),(18.75,23.52),(23.92,26.13),(26.36,31.80),(31.95,37.33)]
+segs=[(0,5.62),(5.80,9.56),(9.70,14.06),(14.20,18.57),(18.75,23.52),(23.92,26.13),(26.36,31.80),(31.95,35.24)]
 starts=json.load(open('starts.json'));END=float(sys.argv[1])
 out=np.zeros(int(END*sr))
 for i,((a,b),s) in enumerate(zip(segs,starts)):

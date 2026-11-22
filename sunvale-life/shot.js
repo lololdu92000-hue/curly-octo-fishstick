@@ -6,7 +6,7 @@ const srv = http.createServer((q, r) => { const p = path.join(root, decodeURICom
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
   p.on('console', m => console.log('console:', m.text())); p.on('pageerror', e => console.log('ERR', e.message));
-  await p.goto('http://localhost:8765/index.html?pr=' + (process.argv[3] || 1));
+  await p.goto('http://localhost:8765/' + (process.argv[4] || 'index.html') + '?pr=' + (process.argv[3] || 1) + (process.argv[5] || ''));
   await p.waitForFunction(() => window.__done, null, { timeout: 590000, polling: 1000 });
   await p.screenshot({ path: process.argv[2] || 'out.png' });
   await b.close(); srv.close();

@@ -1,4 +1,4 @@
-s = open('v2.html').read()
+s = open('v3.html').read()
 def rep(a, b):
     global s
     assert a in s, a[:80]
@@ -82,8 +82,7 @@ rep("  addInst('lamphead', placeLocal(new THREE.Vector3(x + face * 2.3, 8.7, z),
     "  addInst('lamphead', placeLocal(new THREE.Vector3(x + face * 2.3, 8.7, z), 0, 0, 0, 0));\n  addInst('pool', placeLocal(new THREE.Vector3(x + face * 2.3, 0.25, z), 0, 0, 0, 0));")
 rep("  head: [new THREE.SphereGeometry(0.13, 8, 6), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 })],",
     "  head: [new THREE.SphereGeometry(0.13, 8, 6), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 })],\n  pool: [(() => { const g = new THREE.PlaneGeometry(13, 13); g.rotateX(-Math.PI / 2); return g; })(), new THREE.MeshBasicMaterial({ map: poolTex, color: 0xffa64d, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false })],")
-rep("  im.castShadow = !['person', 'head', 'lamphead'].includes(k); im.receiveShadow = true; scene.add(im);",
-    "  im.castShadow = !['person', 'head', 'lamphead', 'pool'].includes(k); im.receiveShadow = k !== 'pool'; scene.add(im); IM[k] = im;")
+rep("im.receiveShadow = true; scene.add(im);", "im.receiveShadow = k !== 'pool'; if (k === 'pool') im.castShadow = false; scene.add(im); IM[k] = im;")
 rep("for (const k in inst) {", "const IM = {};\nfor (const k in inst) {")
 
 # ---------- engine ----------

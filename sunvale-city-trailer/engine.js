@@ -21,7 +21,7 @@ const nightBg = (() => {
   for (let i = 0; i < 25; i++) { g.fillStyle = `rgba(90,70,90,${rr(0.08, 0.2)})`; g.beginPath(); g.ellipse(rr(0, 2048), rr(200, 470), rr(150, 400), rr(15, 40), 0, 0, 7); g.fill(); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.mapping = THREE.EquirectangularReflectionMapping; return t;
 })();
-const nightEnv = (() => { const es = new THREE.Scene(); es.background = new THREE.Color(0x10162a); return new THREE.PMREMGenerator(renderer).fromScene(es).texture; })();
+const nightEnv = window.__nightEnv;
 const lampMat = IGEO.lamphead[1];
 IGEO.pool[1].opacity = 0.35;
 const facadeMats = new Set(), shopLike = new Set();
@@ -55,6 +55,8 @@ function setMode(m) {
   renderer.toneMappingExposure = N ? 0.85 : 0.78;
   bloom.strength = N ? 0.55 : 0.3; bloom.threshold = N ? 0.85 : 0.93; bloom.radius = N ? 0.35 : 0.5;
   IM.pool.visible = N; for (const b of nightOnly) b.visible = N;
+  for (const k in IM) if (k.startsWith('lit_')) IM[k].material = N ? litMat : glassDayLit;
+  glassMat.envMapIntensity = N ? 0.9 : 1.8;
 }
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -64,7 +66,7 @@ const path = (p0, p1, l0, l1, e = ease) => u => { const k = e(u); return { p: li
 const SH = {
   aerialN: path(V(70, 110, 240), V(38, 92, 165), V(0, 15, -150), V(0, 12, -170)),
   streetN: path(V(17.6, 2.7, 96), V(17.6, 2.9, 62), V(13, 3.2, 20), V(13, 3.3, -10), u => u),
-  aveLowN: path(V(0, 1.5, 104), V(0, 1.9, 84), V(-1, 2.6, -200), V(1, 2.6, -200), u => u),
+  aveLowN: path(V(0.2, 2.8, 104), V(0.2, 3.1, 84), V(-1, 3.2, -200), V(1, 3.2, -200), u => u),
   barreN: path(V(42, 17, 32), V(104, 22, 32), V(52, 20, -16), V(114, 24, -16), u => u),
   towerD: u => { const a = 1.9 + 0.35 * ease(u); return { p: V(40 + 40 * Math.cos(a), 1.8 + u * 1.2, -215 + 40 * Math.sin(a)), l: V(40, 48, -215) }; },
   stadeD: path(V(-39, 2.6, 71), V(-44, 3.4, 67), V(-62, 1.4, 52), V(-63, 1.2, 50), u => u),
